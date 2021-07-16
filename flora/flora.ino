@@ -265,13 +265,13 @@ bool readFloraBatteryCharacteristic(BLERemoteService* floraService, String baseT
   return true;
 }
 
-bool processFloraService(BLERemoteService* floraService, char* deviceMacAddress, bool readBattery) {
+bool processFloraService(BLERemoteService* floraService, int deviceNumber, bool readBattery) {
   // set device in data mode
   if (!forceFloraServiceDataMode(floraService)) {
     return false;
   }
 
-  String baseTopic = MQTT_BASE_TOPIC + "/" + deviceMacAddress + "/";
+  String baseTopic = MQTT_BASE_TOPIC + "/" + deviceNumber + ".";
   bool dataSuccess = readFloraDataCharacteristic(floraService, baseTopic);
 
   bool batterySuccess = true;
@@ -282,7 +282,7 @@ bool processFloraService(BLERemoteService* floraService, char* deviceMacAddress,
   return dataSuccess && batterySuccess;
 }
 
-bool processFloraDevice(BLEAddress floraAddress, char* deviceMacAddress, bool getBattery, int tryCount) {
+bool processFloraDevice(BLEAddress floraAddress, int deviceNumber, bool getBattery, int tryCount) {
   Serial.print("Processing Flora device at ");
   Serial.print(floraAddress.toString().c_str());
   Serial.print(" (try ");
@@ -303,7 +303,7 @@ bool processFloraDevice(BLEAddress floraAddress, char* deviceMacAddress, bool ge
   }
 
   // process devices data
-  bool success = processFloraService(floraService, deviceMacAddress, getBattery);
+  bool success = processFloraService(floraService, deviceNumber, getBattery);
 
   // disconnect from device
   floraClient->disconnect();
@@ -359,7 +359,7 @@ void setup() {
 
     while (tryCount < RETRY) {
       tryCount++;
-      if (processFloraDevice(floraAddress, deviceMacAddress, readBattery, tryCount)) {
+      if (processFloraDevice(floraAddress, i, readBattery, tryCount)) {
         break;
       }
       delay(1000);
