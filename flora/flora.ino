@@ -4,9 +4,9 @@
    See https://github.com/nkolban/esp32-snippets/blob/master/Documentation/BLE%20C%2B%2B%20Guide.pdf
    on how bluetooth low energy and the library used are working.
 
-   See https://github.com/ChrisScheffler/miflora/wiki/The-Basics for details on how the 
+   See https://github.com/ChrisScheffler/miflora/wiki/The-Basics for details on how the
    protocol is working.
-   
+
    MIT License
 
    Copyright (c) 2017 Sven Henkel
@@ -130,7 +130,7 @@ BLERemoteService* getFloraService(BLEClient* floraClient) {
 
 bool forceFloraServiceDataMode(BLERemoteService* floraService) {
   BLERemoteCharacteristic* floraCharacteristic;
-  
+
   // get device mode characteristic, needs to be changed to read data
   Serial.println("- Force device in data mode");
   floraCharacteristic = nullptr;
@@ -201,7 +201,7 @@ bool readFloraDataCharacteristic(BLERemoteService* floraService, String baseTopi
   int light = val[3] + val[4] * 256;
   Serial.print("-- Light: ");
   Serial.println(light);
- 
+
   int conductivity = val[8] + val[9] * 256;
   Serial.print("-- Conductivity: ");
   Serial.println(conductivity);
@@ -214,8 +214,8 @@ bool readFloraDataCharacteristic(BLERemoteService* floraService, String baseTopi
   char buffer[64];
 
   snprintf(buffer, 64, "%f", temperature);
-  client.publish((baseTopic + "temperature").c_str(), buffer); 
-  snprintf(buffer, 64, "%d", moisture); 
+  client.publish((baseTopic + "temperature").c_str(), buffer);
+  snprintf(buffer, 64, "%d", moisture);
   client.publish((baseTopic + "moisture").c_str(), buffer);
   snprintf(buffer, 64, "%d", light);
   client.publish((baseTopic + "light").c_str(), buffer);
