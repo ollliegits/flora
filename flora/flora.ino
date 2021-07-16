@@ -343,6 +343,11 @@ void setup() {
   connectWifi();
   connectMqtt();
 
+  // send Heartbeat
+  char buffer[64];
+  snprintf(buffer, 64, "%d", bootCount);
+  client.publish((MQTT_BASE_TOPIC + "/bootcount").c_str(), buffer);
+
   // check if battery status should be read - based on boot count
   bool readBattery = ((bootCount % BATTERY_INTERVAL) == 0);
 
