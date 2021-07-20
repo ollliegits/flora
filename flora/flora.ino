@@ -271,7 +271,7 @@ bool processFloraService(BLERemoteService* floraService, int deviceNumber, bool 
     return false;
   }
 
-  String baseTopic = MQTT_BASE_TOPIC + "/" + deviceNumber + ".";
+  String baseTopic = MQTT_BASE_TOPIC + "/" + deviceNumber + "-";
   bool dataSuccess = readFloraDataCharacteristic(floraService, baseTopic);
 
   bool batterySuccess = true;
