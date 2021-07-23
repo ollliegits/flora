@@ -56,6 +56,15 @@ TaskHandle_t hibernateTaskHandle = NULL;
 WiFiClient espClient;
 PubSubClient client(espClient);
 
+void blink_led(uint32_t duration, char reps) {
+  for (int i = 0; i < reps; i++) {
+    digitalWrite(BUILTIN_LED, HIGH);
+    delay(duration / reps / 2);
+    digitalWrite(BUILTIN_LED, LOW);
+    delay(duration/ reps / 2);
+  }
+}
+
 void connectWifi() {
   Serial.println("Connecting to WiFi...");
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
@@ -75,10 +84,13 @@ void disconnectWifi() {
   Serial.println("WiFi disonnected");
 }
 
+void initMqtt() {
+  client.setServer(MQTT_HOST, MQTT_PORT);
+//  client.setCallback(mqttCallback);
+}
+
 void connectMqtt() {
   Serial.println("Connecting to MQTT...");
-  client.setServer(MQTT_HOST, MQTT_PORT);
-
   while (!client.connected()) {
     if (!client.connect(MQTT_CLIENTID, MQTT_USERNAME, MQTT_PASSWORD)) {
       Serial.print("MQTT connection failed:");
@@ -90,6 +102,15 @@ void connectMqtt() {
 
   Serial.println("MQTT connected");
   Serial.println("");
+
+  //subscribe to MQTT
+  if (MQTT_INTOPIC != "") {
+    String in_topic = MQTT_BASE_TOPIC + "/" + MQTT_INTOPIC;
+    client.subscribe(in_topic.c_str());
+    Serial.print("Subscribe to MQTT topic: ");
+    Serial.println(in_topic);
+    Serial.println("");
+  }
 }
 
 void disconnectMqtt() {
@@ -219,8 +240,10 @@ bool readFloraDataCharacteristic(BLERemoteService* floraService, String baseTopi
   client.publish((baseTopic + "moisture").c_str(), buffer);
   snprintf(buffer, 64, "%d", light);
   client.publish((baseTopic + "light").c_str(), buffer);
-  snprintf(buffer, 64, "%d", conductivity);
-  client.publish((baseTopic + "conductivity").c_str(), buffer);
+
+// spare this feed
+//  snprintf(buffer, 64, "%d", conductivity);
+//  client.publish((baseTopic + "conductivity").c_str(), buffer);
 
   return true;
 }
@@ -339,9 +362,14 @@ void setup() {
   BLEDevice::init("");
   BLEDevice::setPower(ESP_PWR_LVL_P7);
 
+  // Initialize the BUILTIN_LED pin as an output
+  pinMode(BUILTIN_LED, OUTPUT);
+
   // connecting wifi and mqtt server
   connectWifi();
+  initMqtt();
   connectMqtt();
+  blink_led(2000, 1);
 
   // send Heartbeat
   char buffer[64];
@@ -360,6 +388,7 @@ void setup() {
     while (tryCount < RETRY) {
       tryCount++;
       if (processFloraDevice(floraAddress, i, readBattery, tryCount)) {
+        blink_led(1000, 10);
         break;
       }
       delay(1000);
@@ -379,6 +408,6 @@ void setup() {
 }
 
 void loop() {
-  /// we're not doing anything in the loop, only on device wakeup
+  // we're not doing anything in the loop, only on device wakeup
   delay(10000);
 }
