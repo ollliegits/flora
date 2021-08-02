@@ -1,8 +1,8 @@
 
 // array of different xiaomi flora MAC addresses
 char* FLORA_DEVICES[] = {
-    "C4:7C:8D:67:11:11", 
-    "C4:7C:8D:67:22:22", 
+    "C4:7C:8D:67:11:11",
+    "C4:7C:8D:67:22:22",
     "C4:7C:8D:67:33:33"
 };
 
@@ -14,6 +14,8 @@ char* FLORA_DEVICES[] = {
 #define BATTERY_INTERVAL 6
 // how often should a device be retried in a run when something fails
 #define RETRY 3
+//GPIO Pin of Built-in LED
+#define BUILTIN_LED 2
 
 const char*   WIFI_SSID       = "ssid";
 const char*   WIFI_PASSWORD   = "password";
@@ -27,5 +29,12 @@ const int     MQTT_PORT       = 1883;
 const char*   MQTT_CLIENTID   = "miflora-client";
 const char*   MQTT_USERNAME   = "username";
 const char*   MQTT_PASSWORD   = "password";
-const String  MQTT_BASE_TOPIC = "flora"; 
+const String  MQTT_BASE_TOPIC = "flora";
 const int     MQTT_RETRY_WAIT = 5000;
+const String  MQTT_INTOPIC    = "";
+
+const bool FLORA_REPORT_TEMPERATURE  = true;
+const bool FLORA_REPORT_MOISTURE     = true;
+const bool FLORA_REPORT_LIGHT        = true;
+const bool FLORA_REPORT_CONDUCTIVITY = false;
+const bool FLORA_REPORT_BATTERY      = true;
