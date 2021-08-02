@@ -233,18 +233,22 @@ bool readFloraDataCharacteristic(BLERemoteService* floraService, String baseTopi
   }
 
   char buffer[64];
-
-  snprintf(buffer, 64, "%f", temperature);
-  client.publish((baseTopic + "temperature").c_str(), buffer);
-  snprintf(buffer, 64, "%d", moisture);
-  client.publish((baseTopic + "moisture").c_str(), buffer);
-  snprintf(buffer, 64, "%d", light);
-  client.publish((baseTopic + "light").c_str(), buffer);
-
-// spare this feed
-//  snprintf(buffer, 64, "%d", conductivity);
-//  client.publish((baseTopic + "conductivity").c_str(), buffer);
-
+  if (FLORA_REPORT_TEMPERATURE) {
+    snprintf(buffer, 64, "%f", temperature);
+    client.publish((baseTopic + "temperature").c_str(), buffer);
+  }
+  if (FLORA_REPORT_MOISTURE) {
+    snprintf(buffer, 64, "%d", moisture);
+    client.publish((baseTopic + "moisture").c_str(), buffer);
+  }
+  if (FLORA_REPORT_LIGHT) {
+    snprintf(buffer, 64, "%d", light);
+    client.publish((baseTopic + "light").c_str(), buffer);
+  }
+  if (FLORA_REPORT_CONDUCTIVITY) {
+    snprintf(buffer, 64, "%d", conductivity);
+    client.publish((baseTopic + "conductivity").c_str(), buffer);
+  }
   return true;
 }
 
