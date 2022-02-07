@@ -57,6 +57,7 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 
 void blink_led(uint32_t duration, char reps) {
+  if (! USE_LED) return;
   for (int i = 0; i < reps; i++) {
     digitalWrite(BUILTIN_LED, HIGH);
     delay(duration / reps / 2);
@@ -103,14 +104,14 @@ void connectMqtt() {
   Serial.println("MQTT connected");
   Serial.println("");
 
-  //subscribe to MQTT
-  if (MQTT_INTOPIC != "") {
-    String in_topic = MQTT_BASE_TOPIC + "/" + MQTT_INTOPIC;
-    client.subscribe(in_topic.c_str());
-    Serial.print("Subscribe to MQTT topic: ");
-    Serial.println(in_topic);
-    Serial.println("");
-  }
+//  //subscribe to MQTT
+//  if (MQTT_INTOPIC != "") {
+//    String in_topic = MQTT_BASE_TOPIC + "/" + MQTT_INTOPIC;
+//    client.subscribe(in_topic.c_str());
+//    Serial.print("Subscribe to MQTT topic: ");
+//    Serial.println(in_topic);
+//    Serial.println("");
+//  }
 }
 
 void disconnectMqtt() {
@@ -128,6 +129,14 @@ BLEClient* getFloraClient(BLEAddress floraAddress) {
 
   Serial.println("- Connection successful");
   return floraClient;
+}
+
+boolean publishMqtt(const char *topic, const char *payload) {
+  if (!client.connected()) {
+    connectMqtt();
+  }
+
+  return client.publish(topic, payload);
 }
 
 BLERemoteService* getFloraService(BLEClient* floraClient) {
@@ -235,20 +244,38 @@ bool readFloraDataCharacteristic(BLERemoteService* floraService, String baseTopi
   char buffer[64];
   if (FLORA_REPORT_TEMPERATURE) {
     snprintf(buffer, 64, "%f", temperature);
-    client.publish((baseTopic + "temperature").c_str(), buffer);
+    Serial.print("Info: Publishing Temperature to: ");
+    Serial.println(baseTopic + "temperature");
+    if (publishMqtt((baseTopic + "temperature").c_str(), buffer)) {
+      Serial.println("Success.");
+    }
   }
   if (FLORA_REPORT_MOISTURE) {
     snprintf(buffer, 64, "%d", moisture);
-    client.publish((baseTopic + "moisture").c_str(), buffer);
+    Serial.print("Info: Publishing Moisture to: ");
+    Serial.println(baseTopic + "moisture");
+    Serial.println(buffer);
+    if (publishMqtt((baseTopic + "moisture").c_str(), buffer)) {
+      Serial.println("Success.");
+    }
   }
   if (FLORA_REPORT_LIGHT) {
     snprintf(buffer, 64, "%d", light);
-    client.publish((baseTopic + "light").c_str(), buffer);
+    Serial.print("Info: Publishing Light to: ");
+    Serial.println(baseTopic + "light");
+    if (publishMqtt((baseTopic + "light").c_str(), buffer)) {
+      Serial.println("Success.");
+    }
   }
   if (FLORA_REPORT_CONDUCTIVITY) {
     snprintf(buffer, 64, "%d", conductivity);
-    client.publish((baseTopic + "conductivity").c_str(), buffer);
+    Serial.print("Info: Publishing Conductivity to: ");
+    Serial.println(baseTopic + "conductivity");
+    if (publishMqtt((baseTopic + "conductivity").c_str(), buffer)){
+      Serial.println("Success.");
+    }
   }
+
   return true;
 }
 
@@ -282,12 +309,12 @@ bool readFloraBatteryCharacteristic(BLERemoteService* floraService, String baseT
   const char *val2 = value.c_str();
   int battery = val2[0];
 
-  char buffer[64];
-
-  Serial.print("-- Battery: ");
-  Serial.println(battery);
-  snprintf(buffer, 64, "%d", battery);
-  client.publish((baseTopic + "battery").c_str(), buffer);
+  char buffer[64];  
+  Serial.print("Info: Publishing Battery to: ");
+  Serial.println(baseTopic + "battery");
+  if (publishMqtt((baseTopic + "battery").c_str(), buffer)){
+    Serial.println("Success.");
+  }
 
   return true;
 }
@@ -367,7 +394,7 @@ void setup() {
   BLEDevice::setPower(ESP_PWR_LVL_P7);
 
   // Initialize the BUILTIN_LED pin as an output
-  pinMode(BUILTIN_LED, OUTPUT);
+  if (USE_LED) pinMode(BUILTIN_LED, OUTPUT);
 
   // connecting wifi and mqtt server
   connectWifi();
@@ -378,7 +405,7 @@ void setup() {
   // send Heartbeat
   char buffer[64];
   snprintf(buffer, 64, "%d", bootCount);
-  client.publish((MQTT_BASE_TOPIC + "/bootcount").c_str(), buffer);
+  publishMqtt((MQTT_BASE_TOPIC + "/bootcount").c_str(), buffer);
 
   // check if battery status should be read - based on boot count
   bool readBattery = ((bootCount % BATTERY_INTERVAL) == 0);
