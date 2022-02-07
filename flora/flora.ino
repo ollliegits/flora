@@ -31,7 +31,7 @@
    SOFTWARE.
 */
 
-#include "BLEDevice.h"
+#include "NimBLEDevice.h"
 #include <WiFi.h>
 #include <PubSubClient.h>
 
