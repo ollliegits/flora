@@ -1,40 +1,45 @@
 
 // array of different xiaomi flora MAC addresses
-char* FLORA_DEVICES[] = {
-    "C4:7C:8D:67:11:11",
-    "C4:7C:8D:67:22:22",
-    "C4:7C:8D:67:33:33"
+// Retrieval of MAC using:
+//  - 'Bluez' on linux: `sudo hcitool lescan`
+//  - 'Bluetility' on macOS
+char *FLORA_DEVICES[] = {
+    "C4:7C:8D:6C:51:6A", // grün
+    "C4:7C:8D:6D:7B:AB", // weiß
+    "C4:7C:8D:6D:7B:A0", // #3
+    "C4:7C:8D:6D:79:D5"  // #4
 };
 
 // sleep between to runs in seconds
 #define SLEEP_DURATION 30 * 60
 // emergency hibernate countdown in seconds
-#define EMERGENCY_HIBERNATE 3 * 60
+#define EMERGENCY_HIBERNATE 5 * 60
 // how often should the battery be read - in run count
 #define BATTERY_INTERVAL 6
 // how often should a device be retried in a run when something fails
-#define RETRY 3
+#define RETRY 1
 //GPIO Pin of Built-in LED
-#define BUILTIN_LED 2
+const bool USE_LED = true; // false;
+const byte BUILTIN_LED = 2;
 
-const char*   WIFI_SSID       = "ssid";
-const char*   WIFI_PASSWORD   = "password";
+const char *WIFI_SSID     = "ssid";
+const char *WIFI_PASSWORD = "password";
 
 // MQTT topic gets defined by "<MQTT_BASE_TOPIC>/<MAC_ADDRESS>/<property>"
 // where MAC_ADDRESS is one of the values from FLORA_DEVICES array
 // property is either temperature, moisture, conductivity, light or battery
 
-const char*   MQTT_HOST       = "10.10.10.1";
-const int     MQTT_PORT       = 1883;
-const char*   MQTT_CLIENTID   = "miflora-client";
-const char*   MQTT_USERNAME   = "username";
-const char*   MQTT_PASSWORD   = "password";
-const String  MQTT_BASE_TOPIC = "flora";
-const int     MQTT_RETRY_WAIT = 5000;
-const String  MQTT_INTOPIC    = "";
+const char *MQTT_HOST = "io.adafruit.com";
+const int MQTT_PORT = 1883;
+const char *MQTT_CLIENTID = "miflora-client";
+const char *MQTT_USERNAME = "username";
+const char *MQTT_PASSWORD = "password";
+const String MQTT_BASE_TOPIC = "flora";
+const int MQTT_RETRY_WAIT = 5000;
+const String MQTT_INTOPIC = "";
 
-const bool FLORA_REPORT_TEMPERATURE  = true;
-const bool FLORA_REPORT_MOISTURE     = true;
-const bool FLORA_REPORT_LIGHT        = true;
+const bool FLORA_REPORT_TEMPERATURE = false;
+const bool FLORA_REPORT_MOISTURE = true;
+const bool FLORA_REPORT_LIGHT = false;
 const bool FLORA_REPORT_CONDUCTIVITY = false;
-const bool FLORA_REPORT_BATTERY      = true;
+const bool FLORA_REPORT_BATTERY = true;
